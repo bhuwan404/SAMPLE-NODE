@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        REGISTRY_URL="${REGISTRY_NAME}"/"${REGISTRY_REPO}"
+        REGISTRY_URL="${REGISTRY_NAME}/${REGISTRY_REPO}"
         DOCKERHUB_CREDENTIALS = credentials('jk-dh-tk')
     }
     
