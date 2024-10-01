@@ -23,6 +23,5 @@ pipeline {
                 sh "docker push ${REGISTRY_URL}:${BUILD_NUMBER}"
             }
         }
-        
     }
 }
