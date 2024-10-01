@@ -23,7 +23,7 @@ pipeline {
             }
         }
         
-        stage('Login to DockerHub') {
+        stage('Push image to DockerHub') {
             steps {
                 // script {
                 //     docker.withRegistry('', DOCKERHUB_CREDENTIALS) {
