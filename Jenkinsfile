@@ -25,9 +25,9 @@ pipeline {
         }
 
         stage('Kubernetes Deploy') {
-            steps {
+            // steps {
                 // sh 'envsubst < ${WORKSPACE}/k8s/deployment.yaml | kubectl apply -f - --namespace=sample-node'
-            }
+            // }
         }
     }
 }
