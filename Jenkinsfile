@@ -24,10 +24,10 @@ pipeline {
             }
         }
 
-        stage('Kubernetes Deploy') {
+        // stage('Kubernetes Deploy') {
             // steps {
                 // sh 'envsubst < ${WORKSPACE}/k8s/deployment.yaml | kubectl apply -f - --namespace=sample-node'
             // }
-        }
+        // }
     }
 }
