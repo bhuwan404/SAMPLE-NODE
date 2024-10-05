@@ -1,80 +1,75 @@
-let express = require('express');
-let path = require('path');
-let fs = require('fs');
-let MongoClient = require('mongodb').MongoClient;
-let bodyParser = require('body-parser');
-let app = express();
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const MongoClient = require('mongodb').MongoClient;
+const bodyParser = require('body-parser');
+const app = express();
 
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.get('/', function (req, res) {
+app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));
-  });
-
-app.get('/profile-picture', function (req, res) {
-  let img = fs.readFileSync(path.join(__dirname, "images/profile-1.jpg"));
-  res.writeHead(200, {'Content-Type': 'image/jpg' });
-  res.end(img, 'binary');
 });
 
-// use when starting application locally
-let mongoUrlLocal = "mongodb://admin:password@localhost:27017";
+app.get('/profile-picture', (req, res) => {
+    const img = fs.readFileSync(path.join(__dirname, "images/profile-1.jpg"));
+    res.writeHead(200, { 'Content-Type': 'image/jpg' });
+    res.end(img, 'binary');
+});
 
-// use when starting application as docker container
-let mongoUrlDocker = "mongodb://admin:password@mongodb";
+// Get MongoDB connection details from environment variables or use defaults
+const mongoHost = process.env.MONGODB_HOST || 'localhost';
+const mongoPort = process.env.MONGODB_PORT || '27017';
+const mongoUsername = process.env.MONGODB_USERNAME || 'admin';
+const mongoPassword = process.env.MONGODB_PASSWORD || 'password';
+const mongoUrl = `mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPort}`;
+const mongoClientOptions = { useNewUrlParser: true, useUnifiedTopology: true };
+const databaseName = "my-db";
 
-// pass these options to mongo client connect request to avoid DeprecationWarning for current Server Discovery and Monitoring engine
-let mongoClientOptions = { useNewUrlParser: true, useUnifiedTopology: true };
+app.post('/update-profile', (req, res) => {
+    const userObj = req.body;
 
-// "user-account" in demo with docker. "my-db" in demo with docker-compose
-let databaseName = "my-db";
+    MongoClient.connect(mongoUrl, mongoClientOptions, (err, client) => {
+        if (err) throw err;
 
-app.post('/update-profile', function (req, res) {
-  let userObj = req.body;
+        const db = client.db(databaseName);
+        userObj['userid'] = 1;
 
-  MongoClient.connect(mongoUrlLocal, mongoClientOptions, function (err, client) {
-    if (err) throw err;
+        const myquery = { userid: 1 };
+        const newvalues = { $set: userObj };
 
-    let db = client.db(databaseName);
-    userObj['userid'] = 1;
-
-    let myquery = { userid: 1 };
-    let newvalues = { $set: userObj };
-
-    db.collection("users").updateOne(myquery, newvalues, {upsert: true}, function(err, res) {
-      if (err) throw err;
-      client.close();
+        db.collection("users").updateOne(myquery, newvalues, { upsert: true }, (err, result) => {
+            if (err) throw err;
+            client.close();
+        });
     });
 
-  });
-  // Send response
-  res.send(userObj);
+    // Send response
+    res.send(userObj);
 });
 
-app.get('/get-profile', function (req, res) {
-  let response = {};
-  // Connect to the db
-  MongoClient.connect(mongoUrlLocal, mongoClientOptions, function (err, client) {
-    if (err) throw err;
+app.get('/get-profile', (req, res) => {
+    let response = {};
+    
+    // Connect to the db
+    MongoClient.connect(mongoUrl, mongoClientOptions, (err, client) => {
+        if (err) throw err;
 
-    let db = client.db(databaseName);
+        const db = client.db(databaseName);
+        const myquery = { userid: 1 };
 
-    let myquery = { userid: 1 };
+        db.collection("users").findOne(myquery, (err, result) => {
+            if (err) throw err;
+            response = result;
+            client.close();
 
-    db.collection("users").findOne(myquery, function (err, result) {
-      if (err) throw err;
-      response = result;
-      client.close();
-
-      // Send response
-      res.send(response ? response : {});
+            // Send response
+            res.send(response ? response : {});
+        });
     });
-  });
 });
 
-app.listen(3000, function () {
-  console.log("app listening on port 3000!");
+app.listen(3000, () => {
+    console.log("app listening on port 3000!");
 });
