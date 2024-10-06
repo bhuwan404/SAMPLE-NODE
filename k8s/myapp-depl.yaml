@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: myapp
+  name: myapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - image: bhuwan405/test-app:14
+        name: test-app
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGODB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: myapp
+              key: MONGODB_HOST
+        - name: MONGODB_PORT
+          valueFrom: 
+            secretKeyRef:
+              name: myapp
+              key: MONGODB_PORT     
+        resources: {} 
+status: {}

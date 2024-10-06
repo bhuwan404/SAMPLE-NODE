@@ -11,26 +11,22 @@ All components are docker-based
 
 #### To start the application
 
-Step 1: Create docker network
+Step 1: start mongodb 
 
-    docker network create mongo-network 
+    docker run -d -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password --name mongodb  mongo
 
-Step 2: start mongodb 
-
-    docker run -d -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password --name mongodb  
-
-Step 3: start mongo-express (optional)
+Step 2: start mongo-express (optional)
     
     docker run -d -p 8081:8081 -e ME_CONFIG_MONGODB_ADMINUSERNAME=admin -e ME_CONFIG_MONGODB_ADMINPASSWORD=password --name mongo-express -e ME_CONFIG_MONGODB_SERVER=mongodb mongo-express   
 
-Step 4: create `user-account` _db_ and `users` _collection_ in mongo-express
+Step 3: create `user-account` _db_ and `users` _collection_ in mongo-express
 
-Step 5: Start the nodejs application locally - go to `app` directory of project 
+Step 4: Start the nodejs application locally - go to `app` directory of project 
 
     npm install 
     node server.js
 
-Step 6: Start the nodejs application with docker container
+Step 5: Start the nodejs application with docker container
 
     sudo docker build -t my-app:1 .
     sudo docker image ls
